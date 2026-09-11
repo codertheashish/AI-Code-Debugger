@@ -83,13 +83,39 @@
     charCount.textContent = text.length + " characters · " + lineCount + " lines";
   }
 
-  codeInput.addEventListener("input", updateEditorMeta);
+  var detectTimer = null;
+
+  function scheduleLanguageDetection() {
+    if (detectTimer) clearTimeout(detectTimer);
+    detectTimer = setTimeout(function () {
+      var detected = Utils.detectLanguage(codeInput.value);
+      if (detected && detected !== languageSelect.value) {
+        languageSelect.value = detected;
+        langEcho.textContent = detected;
+        flashAutoDetected();
+      }
+    }, 500);
+  }
+
+  function flashAutoDetected() {
+    langEcho.textContent = languageSelect.value + " (auto-detected)";
+    setTimeout(function () {
+      langEcho.textContent = languageSelect.value;
+    }, 1800);
+  }
+
+  codeInput.addEventListener("input", function () {
+    updateEditorMeta();
+    scheduleLanguageDetection();
+  });
   codeInput.addEventListener("scroll", function () {
     lineNumbers.scrollTop = codeInput.scrollTop;
   });
 
   languageSelect.addEventListener("change", function () {
     langEcho.textContent = languageSelect.value;
+    // A manual pick always wins — cancel any pending auto-detect for this input.
+    if (detectTimer) clearTimeout(detectTimer);
   });
 
   document.getElementById("clearCodeBtn").addEventListener("click", function () {
