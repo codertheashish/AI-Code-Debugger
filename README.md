@@ -197,3 +197,17 @@ Built with HTML, CSS, JavaScript, and AI via [Puter.js](https://puter.com).
 Fonts: [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) and
 [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono), both via
 Google Fonts.
+
+## 👨‍💻 Author
+
+**Ashish Kumar Prajapati**
+
+- GitHub :
+[codertheashish](https://github.com/codertheashish)
+- LinkedIn :
+[codertheashish](https://www.linkedin.com/in/codertheashish/)
+- Instagram :
+[codertheashish](https://www.instagram.com/codertheashish/)
+---
+
+<img width="1726" height="911" alt="AI Code Debugger Png 1" src="https://github.com/user-attachments/assets/5af8dff2-6dd4-4e22-b9de-8e2ec245388e" />
