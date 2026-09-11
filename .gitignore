@@ -1,0 +1,21 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Local environment files (not used by this project, ignored defensively)
+.env
+.env.local
+
+# Archives sometimes created when zipping the project for upload
+*.zip

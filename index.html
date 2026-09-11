@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AI-Powered Code & Debugging Assistant</title>
+<meta name="description" content="An AI-powered coding assistant that analyzes errors, explains bugs, and suggests corrected code.">
+<meta name="theme-color" content="#0B0E14">
+
+<!-- Open Graph -->
+<meta property="og:title" content="AI-Powered Code & Debugging Assistant">
+<meta property="og:description" content="Find bugs. Understand errors. Fix code faster.">
+<meta property="og:type" content="website">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="icon" type="image/svg+xml" href="./assets/logo.svg">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body data-theme="dark">
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<header class="top">
+  <div class="top-row">
+    <div class="brand">
+      <img class="brand-mark" src="./assets/logo.svg" alt="" width="40" height="40">
+      <div class="brand-text">
+        <h1>AI-Powered Code &amp; Debugging Assistant</h1>
+        <p>Find bugs. Understand errors. Fix code faster.</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="status-badge" id="statusBadge"><span class="status-dot" id="statusDot"></span><span id="statusText">AI Debugger — Ready</span></span>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark or light theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <!-- CONTROL BAR -->
+  <div class="control-bar">
+    <div class="field">
+      <label for="languageSelect">Language</label>
+      <select id="languageSelect" aria-label="Programming language">
+        <option value="Python">Python</option>
+        <option value="JavaScript">JavaScript</option>
+        <option value="Java">Java</option>
+        <option value="C++">C++</option>
+        <option value="C">C</option>
+        <option value="HTML">HTML</option>
+        <option value="CSS">CSS</option>
+        <option value="SQL">SQL</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- MAIN GRID: EDITOR + ERROR INPUT -->
+  <div class="main-grid">
+
+    <!-- CODE EDITOR CARD -->
+    <section class="card" aria-labelledby="editorHeading">
+      <div class="card-head">
+        <h2 id="editorHeading">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          Code Editor
+        </h2>
+        <div class="toolbar">
+          <button class="btn btn-ghost" id="copyCodeBtn" type="button">Copy</button>
+          <button class="btn btn-ghost" id="clearCodeBtn" type="button">Clear</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="editor-shell">
+          <div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div>
+          <label for="codeInput" class="sr-only">Paste your source code here</label>
+          <textarea id="codeInput" spellcheck="false" placeholder="// Paste your code here..." autocomplete="off"></textarea>
+        </div>
+        <div class="editor-meta">
+          <span id="charCount">0 characters · 0 lines</span>
+          <span id="langEcho">Python</span>
+        </div>
+        <div class="examples-row" aria-label="Load a sample buggy snippet">
+          <span class="examples-label">Try Example:</span>
+          <button class="chip" data-example="python" type="button">Python (logical bug)</button>
+          <button class="chip" data-example="javascript" type="button">JavaScript (runtime error)</button>
+          <button class="chip" data-example="cpp" type="button">C++ (out-of-bounds)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ERROR INPUT + INFO -->
+    <div class="side-stack">
+      <section class="card" aria-labelledby="errorHeading">
+        <div class="card-head">
+          <h3 id="errorHeading">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            Error / Problem
+          </h3>
+        </div>
+        <div class="card-body">
+          <label for="errorInput" class="sr-only">Error message or problem description</label>
+          <textarea id="errorInput" placeholder="Paste the error message or describe what is going wrong..."></textarea>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-body info-note">
+          <strong>How it works</strong>
+          Paste code, pick a language, optionally add the error you're seeing, then run
+          <em>Analyze &amp; Debug</em>. The assistant checks for syntax, runtime, logical,
+          performance and security issues, and returns corrected code with an explanation.
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ANALYZE BAR -->
+  <div class="analyze-bar">
+    <button class="btn btn-primary" id="analyzeBtn" type="button">
+      <span class="spinner" aria-hidden="true"></span>
+      <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7z"></path></svg>
+      <span class="btn-label">Analyze &amp; Debug</span>
+    </button>
+    <span class="analyze-hint" id="analyzeHint">Uses your browser's built-in AI access — no API key needed.</span>
+  </div>
+
+  <!-- RESULTS -->
+  <section id="resultsSection" aria-live="polite" aria-labelledby="resultsHeading">
+    <h2 id="resultsHeading" class="section-title">AI Analysis Result</h2>
+    <div id="resultBanner"></div>
+
+    <div id="structuredResults" class="result-grid">
+      <div class="result-card wide card">
+        <div class="card-head"><h3><span class="tag-dot tag-issue" aria-hidden="true"></span>Issue</h3></div>
+        <div class="card-body" id="out-issue">—</div>
+      </div>
+      <div class="result-card card">
+        <div class="card-head"><h3><span class="tag-dot tag-why" aria-hidden="true"></span>Why It Happens</h3></div>
+        <div class="card-body" id="out-why">—</div>
+      </div>
+      <div class="result-card card">
+        <div class="card-head"><h3><span class="tag-dot tag-complex" aria-hidden="true"></span>Complexity Analysis</h3></div>
+        <div class="card-body" id="out-complexity">—</div>
+      </div>
+
+      <div class="result-card wide card">
+        <div class="card-head">
+          <h3><span class="tag-dot tag-fix" aria-hidden="true"></span>Fixed Code</h3>
+          <div class="fixed-code-actions">
+            <button class="btn btn-ghost" id="copyFixedBtn" type="button">Copy Fixed Code</button>
+            <button class="btn btn-amber" id="downloadFixedBtn" type="button">Download</button>
+          </div>
+        </div>
+        <div class="card-body"><pre class="code-block" id="out-fixedcode">—</pre></div>
+      </div>
+
+      <div class="result-card wide card">
+        <div class="card-head"><h3><span class="tag-dot tag-explain" aria-hidden="true"></span>Explanation</h3></div>
+        <div class="card-body" id="out-explanation">—</div>
+      </div>
+
+      <div class="result-card card">
+        <div class="card-head"><h3><span class="tag-dot tag-improve" aria-hidden="true"></span>Suggested Improvements</h3></div>
+        <div class="card-body" id="out-improvements">—</div>
+      </div>
+      <div class="result-card card">
+        <div class="card-head"><h3><span class="tag-dot tag-edge" aria-hidden="true"></span>Potential Edge Cases</h3></div>
+        <div class="card-body" id="out-edgecases">—</div>
+      </div>
+    </div>
+
+    <div id="rawFallbackCard" class="card raw-fallback-card">
+      <div class="card-head"><h3>Full AI Response</h3></div>
+      <div class="card-body raw-fallback" id="out-raw">—</div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="card history-section" aria-labelledby="historyHeading">
+    <div class="card-head">
+      <h2 id="historyHeading">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path><path d="M12 7v5l4 2"></path></svg>
+        Debugging History
+      </h2>
+      <button class="btn btn-ghost" id="clearHistoryBtn" type="button">Clear All</button>
+    </div>
+    <div class="card-body">
+      <div id="historyList"></div>
+      <p class="empty-note" id="historyEmpty">No debugging history yet. Your analyses are saved locally in this browser.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Built with HTML, CSS, JavaScript &amp; AI
+  <div class="pages-ready">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    GitHub Pages Ready
+  </div>
+</footer>
+
+<!-- Puter.js must load before the AI debugger module -->
+<script src="https://js.puter.com/v2/"></script>
+
+<!-- App modules: utils and data first, AI integration next, app controller last -->
+<script src="./js/utils.js"></script>
+<script src="./js/examples.js"></script>
+<script src="./js/ai-debugger.js"></script>
+<script src="./js/history.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>
