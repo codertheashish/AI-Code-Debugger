@@ -39,6 +39,30 @@
   var isRequestInFlight = false;
   var lastFixedCode = "";
 
+  /**
+   * Wrap a promise so it rejects with TIMEOUT if it doesn't settle within
+   * the given time. Prevents the "Analyzing your code..." spinner from
+   * running forever if the AI service (or a blocked/ignored login popup)
+   * never responds.
+   */
+  function withTimeout(promise, ms) {
+    return new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () {
+        reject(new Error("TIMEOUT"));
+      }, ms);
+      promise.then(
+        function (val) {
+          clearTimeout(timer);
+          resolve(val);
+        },
+        function (err) {
+          clearTimeout(timer);
+          reject(err);
+        }
+      );
+    });
+  }
+
   /* ---------------------------------------------------------
      THEME
   --------------------------------------------------------- */
@@ -83,13 +107,39 @@
     charCount.textContent = text.length + " characters · " + lineCount + " lines";
   }
 
-  codeInput.addEventListener("input", updateEditorMeta);
+  var detectTimer = null;
+
+  function scheduleLanguageDetection() {
+    if (detectTimer) clearTimeout(detectTimer);
+    detectTimer = setTimeout(function () {
+      var detected = Utils.detectLanguage(codeInput.value);
+      if (detected && detected !== languageSelect.value) {
+        languageSelect.value = detected;
+        langEcho.textContent = detected;
+        flashAutoDetected();
+      }
+    }, 500);
+  }
+
+  function flashAutoDetected() {
+    langEcho.textContent = languageSelect.value + " (auto-detected)";
+    setTimeout(function () {
+      langEcho.textContent = languageSelect.value;
+    }, 1800);
+  }
+
+  codeInput.addEventListener("input", function () {
+    updateEditorMeta();
+    scheduleLanguageDetection();
+  });
   codeInput.addEventListener("scroll", function () {
     lineNumbers.scrollTop = codeInput.scrollTop;
   });
 
   languageSelect.addEventListener("change", function () {
     langEcho.textContent = languageSelect.value;
+    // A manual pick always wins — cancel any pending auto-detect for this input.
+    if (detectTimer) clearTimeout(detectTimer);
   });
 
   document.getElementById("clearCodeBtn").addEventListener("click", function () {
@@ -206,7 +256,7 @@
     showBanner("warn", "Analyzing your code…");
     resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 
-    AIDebugger.analyzeCode(language, code, errorMsg)
+    withTimeout(AIDebugger.analyzeCode(language, code, errorMsg), 45000)
       .then(function (result) {
         if (result.structured) {
           renderStructured(result.sections);
@@ -242,6 +292,9 @@
 
   function friendlyErrorMessage(err) {
     var msg = err && err.message ? String(err.message) : "";
+    if (msg === "TIMEOUT") {
+      return "The AI took too long to respond (over 45s) — this usually means a Puter sign-in popup was blocked or closed. Please allow popups for this site, make sure you're signed in to Puter, and try again.";
+    }
     if (msg === "AI_UNAVAILABLE") {
       return "The AI service isn't available right now. Please check your connection and reload the page, then try again.";
     }

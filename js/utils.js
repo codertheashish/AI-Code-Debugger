@@ -154,6 +154,109 @@
     return (prefix || "id") + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
   }
 
+  /**
+   * Lightweight, dependency-free language auto-detector. Scores the code
+   * against a handful of distinctive patterns per language and returns the
+   * best match, or null if the code is too short / ambiguous to guess.
+   *
+   * This is a heuristic, not a parser — it is intended only to save the
+   * user a click, not to be 100% authoritative. The user can always
+   * override the result via the language dropdown.
+   *
+   * @param {string} code
+   * @returns {string|null} one of the supported language labels, or null
+   */
+  function detectLanguage(code) {
+    if (!code || code.trim().length < 15) return null;
+
+    var scores = {
+      Python: 0,
+      JavaScript: 0,
+      Java: 0,
+      "C++": 0,
+      C: 0,
+      HTML: 0,
+      CSS: 0,
+      SQL: 0
+    };
+
+    var rules = [
+      // Python
+      [/^\s*def\s+\w+\s*\(.*\)\s*:/m, "Python", 3],
+      [/^\s*(from\s+\w+\s+)?import\s+\w+/m, "Python", 1.5],
+      [/^\s*elif\s+.*:/m, "Python", 2],
+      [/\bprint\s*\(/, "Python", 1],
+      [/\bself\./, "Python", 1.5],
+      [/^\s*#.+/m, "Python", 0.5],
+
+      // JavaScript
+      [/\bconsole\.log\s*\(/, "JavaScript", 3],
+      [/\bfunction\s+\w+\s*\(/, "JavaScript", 1.5],
+      [/=>\s*{?/, "JavaScript", 1.5],
+      [/\b(const|let|var)\s+\w+\s*=/, "JavaScript", 1],
+      [/\bdocument\.\w+/, "JavaScript", 2],
+      [/\brequire\s*\(/, "JavaScript", 1],
+
+      // Java
+      [/\bpublic\s+static\s+void\s+main\s*\(/, "Java", 4],
+      [/\bpublic\s+class\s+\w+/, "Java", 3],
+      [/\bSystem\.out\.print(ln)?\s*\(/, "Java", 3],
+      [/^\s*import\s+java\./m, "Java", 2],
+
+      // C++ (checked before C so cout/std::/iostream outrank plain printf)
+      [/#include\s*<iostream>/, "C++", 3],
+      [/\busing\s+namespace\s+std\s*;/, "C++", 3],
+      [/\bstd::/, "C++", 2],
+      [/\bcout\s*<</, "C++", 3],
+      [/\bcin\s*>>/, "C++", 2],
+
+      // C
+      [/#include\s*<stdio\.h>/, "C", 4],
+      [/\bprintf\s*\(/, "C", 2],
+      [/\bscanf\s*\(/, "C", 2],
+
+      // HTML
+      [/<!DOCTYPE\s+html>/i, "HTML", 4],
+      [/<\/?(html|head|body|div|span)[\s>]/i, "HTML", 2],
+
+      // CSS
+      [/^[^{};]*\{[^}]*[\w-]+\s*:\s*[^;]+;[^}]*\}/m, "CSS", 2],
+      [/^\s*[.#]?[\w-]+(\s*[,>+~]\s*[.#]?[\w-]+)*\s*\{/m, "CSS", 1.5],
+
+      // SQL
+      [/\bSELECT\b[\s\S]*\bFROM\b/i, "SQL", 4],
+      [/\bINSERT\s+INTO\b/i, "SQL", 3],
+      [/\bCREATE\s+TABLE\b/i, "SQL", 3],
+      [/\bUPDATE\b[\s\S]*\bSET\b/i, "SQL", 3]
+    ];
+
+    rules.forEach(function (rule) {
+      if (rule[0].test(code)) {
+        scores[rule[1]] += rule[2];
+      }
+    });
+
+    var best = null;
+    var bestScore = 0;
+    var runnerUpScore = 0;
+    Object.keys(scores).forEach(function (lang) {
+      if (scores[lang] > bestScore) {
+        runnerUpScore = bestScore;
+        bestScore = scores[lang];
+        best = lang;
+      } else if (scores[lang] > runnerUpScore) {
+        runnerUpScore = scores[lang];
+      }
+    });
+
+    // Require a minimum confidence and a clear lead over the next best guess
+    // so ambiguous snippets (e.g. a lone "print(...)") don't cause flip-flopping.
+    if (best && bestScore >= 2.5 && bestScore - runnerUpScore >= 1.5) {
+      return best;
+    }
+    return null;
+  }
+
   global.Utils = {
     qs: qs,
     qsa: qsa,
@@ -162,6 +265,7 @@
     extensionForLanguage: extensionForLanguage,
     formatTimestamp: formatTimestamp,
     setTextById: setTextById,
-    generateId: generateId
+    generateId: generateId,
+    detectLanguage: detectLanguage
   };
 })(window);
